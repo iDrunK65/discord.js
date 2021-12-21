@@ -54,6 +54,12 @@ class GuildMember extends Base {
      */
     this.pending = false;
 
+    /**
+     * The timestamp this member can communicate again
+     * @type {?number}
+     */
+    this.communicationDisabledTimestamp = null;
+
     this._roles = [];
     if (data) this._patch(data);
   }
@@ -80,6 +86,12 @@ class GuildMember extends Base {
     if ('joined_at' in data) this.joinedTimestamp = new Date(data.joined_at).getTime();
     if ('premium_since' in data) {
       this.premiumSinceTimestamp = data.premium_since ? new Date(data.premium_since).getTime() : null;
+    }
+
+    if ('communication_disabled_until' in data) {
+      this.communicationDisabledTimestamp = data.communication_disabled_until
+        ? new Date(data.communication_disabled_until).getTime()
+        : null;
     }
     if ('roles' in data) this._roles = data.roles;
     this.pending = data.pending ?? false;
@@ -274,6 +286,15 @@ class GuildMember extends Base {
   }
 
   /**
+   * The time this member is no longer timeout
+   * @type {?Date}
+   * @readonly
+   */
+  get timeoutTo() {
+    return this.communication_disabled_until ? new Date(this.communication_disabled_until) : null;
+  }
+
+  /**
    * Returns `channel.permissionsFor(guildMember)`. Returns permissions for a member in a guild channel,
    * taking into account roles and permission overwrites.
    * @param {GuildChannelResolvable} channel The guild channel to use as context
@@ -314,6 +335,18 @@ class GuildMember extends Base {
    */
   setNickname(nick, reason) {
     return this.edit({ nick }, reason);
+  }
+
+  /**
+   * Timeout this member from the guild.
+   * @param {?number} date The Timestamp for timeout the guild member, or `null` if you want to reset their timeout
+   * @param {string} [reason] Reason for setting the timeout
+   * @returns {Promise<GuildMember>}
+   */
+  timeout(date, reason) {
+    let communication_disabled_until = null;
+    if (date !== null) communication_disabled_until = new Date(date);
+    return this.edit({ communication_disabled_until }, reason);
   }
 
   /**
