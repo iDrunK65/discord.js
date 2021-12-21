@@ -136,6 +136,7 @@ Permissions.FLAGS = {
   USE_APPLICATION_COMMANDS: 1n << 31n,
   REQUEST_TO_SPEAK: 1n << 32n,
   MANAGE_THREADS: 1n << 34n,
+  MODERATE_MEMBERS: 1n << 40n,
   // TODO: Remove deprecated USE_*_THREADS flags in v14
   USE_PUBLIC_THREADS: 1n << 35n,
   CREATE_PUBLIC_THREADS: 1n << 35n,
